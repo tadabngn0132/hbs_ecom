@@ -1,0 +1,25 @@
+<h4 class="center-align bold">Add new category</h4>
+
+<form action="/category/add" method="post">
+  <div class="row">
+    <div class="input-field col s12">
+      <label for="name">Category name</label>
+      <input class="validate" type="text" name="name" id="name" 
+              required minlength="3" maxlength="10"
+              placeholder="Enter category name">
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="input-field col s12">
+      <label for="description">Category description</label>
+      <input class="validate" type="text" name="description" id="description">
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col s12 center-align">
+      <button class="btn teal" type="submit">ADD</button>
+    </div>
+  </div>
+</form>

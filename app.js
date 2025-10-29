@@ -5,13 +5,14 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
-var session = require('express-session'); // THÊM MỚI
+var session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var categoryRouter = require('./routes/category.js');
 var productRouter = require('./routes/product');
-var authRouter = require('./routes/auth'); // THÊM MỚI
+var authRouter = require('./routes/auth');
+var apiRouter = require('./routes/api');
 
 var app = express();
 var database = "mongodb://localhost:27017/web"
@@ -24,10 +25,15 @@ mongoose.connect(database)
   .catch((err) => console.error('Connection database failure', err))
 
 // view engine setup
-var hbs = require('hbs'); // THÊM MỚI
+var hbs = require('hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
-hbs.registerPartials(__dirname + "/views/partials"); // THÊM MỚI (nếu dùng partials)
+hbs.registerPartials(__dirname + "/views/partials");
+
+// Register Handlebars helpers
+hbs.registerHelper('eq', function(a, b) {
+  return a === b;
+});
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -36,19 +42,19 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Session configuration - THÊM MỚI
+// Session configuration
 const timeout = 10000 * 60 * 60 * 24; // 24 hours (in milliseconds)
 app.use(session({
-  secret: "practice_makes_perfect", // Secret key để mã hóa session
+  secret: "practice_makes_perfect",
   saveUninitialized: false,
   cookie: { maxAge: timeout },
   resave: false
 }));
 
-// Make session variables accessible in views - THÊM MỚI
-// QUAN TRỌNG: Phải đặt TRƯỚC khi khai báo routes
+// Make session variables accessible in views
 app.use((req, res, next) => {
   res.locals.username = req.session.username;
+  res.locals.role = req.session.role;
   next();
 });
 
@@ -57,7 +63,8 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/category', categoryRouter);
 app.use('/product', productRouter);
-app.use('/auth', authRouter); // THÊM MỚI
+app.use('/auth', authRouter);
+app.use('/api', apiRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,25 +1,50 @@
 var express = require('express');
 var router = express.Router();
 var ProductModel = require('../models/ProductModel');
-var checkLoginSession = require('../middlewares/auth');
+const { checkLoginSession, checkSingleSession, checkMultipleSession } = require('../middlewares/auth');
+
+//import and config "multer" package
+var multer = require('multer');
+
+//generate an unique value for image name prefix
+var prefix = Date.now();
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './public/images/'); //set image upload location
+  },
+  filename: (req, file, cb) => {
+    let fileName = prefix + "_" + file.originalname; //set final image name
+    cb(null, fileName);
+  }
+});
+
+const upload = multer({ storage: storage })
 
 // GET product list
-router.get('/', checkLoginSession, async function(req, res) {
+router.get('/', checkMultipleSession(['user', 'admin']), async (req, res) => {
   var productList = await ProductModel.find({}).populate('category');
   res.render('product/index', { productList });
 });
 
 // GET add product page
-router.get('/add', checkLoginSession, async function(req, res) {
+router.get('/add', checkSingleSession(), async (req, res) => {
   var CategoryModel = require('../models/CategoryModel');
   var categoryList = await CategoryModel.find({});
   res.render('product/add', { categoryList });
 });
 
-// POST add product (WITH VALIDATION)
-router.post('/add', checkLoginSession, async function(req, res) {
+// POST add product (WITH VALIDATION and IMAGE UPLOAD)
+router.post('/add', upload.single('image'), async (req, res) => {
   try {
     var product = req.body;
+    
+    // Check if file was uploaded
+    if (req.file) {
+      product.image = prefix + "_" + req.file.originalname;
+    }
+    // If no file, keep the URL from input (if provided)
+    
     await ProductModel.create(product);
     res.redirect('/product');
   } catch (err) {
@@ -38,13 +63,13 @@ router.post('/add', checkLoginSession, async function(req, res) {
 });
 
 // GET delete product
-router.get('/delete/:id', checkLoginSession, async function(req, res) {
+router.get('/delete/:id', checkSingleSession(), async (req, res) => {
   await ProductModel.deleteOne({ _id: req.params.id });
   res.redirect('/product');
 });
 
 // POST search product
-router.post('/search', checkLoginSession, async function(req, res) {
+router.post('/search', checkLoginSession, async (req, res) => {
   var keyword = req.body.keyword;
   var productList = await ProductModel.find({ 
     name: new RegExp(keyword, "i") 
@@ -53,13 +78,13 @@ router.post('/search', checkLoginSession, async function(req, res) {
 });
 
 // GET sort ascending
-router.get('/sort/asc', checkLoginSession, async function(req, res) {
+router.get('/sort/asc', checkLoginSession, async (req, res) => {
   var productList = await ProductModel.find().sort({ name: 1 }).populate('category');
   res.render('product/index', { productList });
 });
 
 // GET sort descending
-router.get('/sort/desc', checkLoginSession, async function(req, res) {
+router.get('/sort/desc', checkLoginSession, async (req, res) => {
   var productList = await ProductModel.find().sort({ name: -1 }).populate('category');
   res.render('product/index', { productList });
 });

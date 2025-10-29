@@ -1,13 +1,17 @@
 <h4>Category List</h4>
 
+{{#if (eq role "admin")}}
 <a class="btn teal" href="/category/add">ADD CATEGORY</a>
+{{/if}}
 
 <table class="striped">
   <thead>
     <tr>
       <th>Category name</th>
       <th>Category Description</th>
+      {{#if (eq role "admin")}}
       <th>Menu</th>
+      {{/if}}
     </tr>
   </thead>
   <tbody>
@@ -17,11 +21,13 @@
         <a href="/category/detail/{{ _id }}">{{ name }}</a>
       </td>
       <td>{{ description }}</td>
+      {{#if (eq ../role "admin")}}
       <td>
         <a class="btn orange" href="/category/edit/{{ _id }}">EDIT</a>
         <a class="btn red darken-1" href="/category/delete/{{ _id }}" 
           onclick="return confirm('Do you want to delete this category ?');">DELETE</a>
       </td>
+      {{/if}}
     </tr>
     {{/each}}
   </tbody>

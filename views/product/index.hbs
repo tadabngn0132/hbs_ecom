@@ -10,7 +10,11 @@
 
 <!-- Sort Links -->
 <div class="row">
-  <a class="btn" href="/product/add">Add product</a>
+  {{#if role}}
+    {{#if (eq role "admin")}}
+      <a class="btn" href="/product/add">Add product</a>
+    {{/if}}
+  {{/if}}
   <a class="btn green" href="/product/sort/asc">Name ascending</a>
   <a class="btn lime" href="/product/sort/desc">Name descending</a>
 </div>
@@ -23,21 +27,29 @@
       <th>Price</th>
       <th>Image</th>
       <th>Category</th>
+      {{#if (eq role "admin")}}
       <th>Menu</th>
+      {{/if}}
     </tr>
   </thead>
   <tbody>
     {{#each productList }}
     <tr>
       <td>{{ name }}</td>
-      <td>{{ price }}</td>
-      <td><img src="{{ image }}" width="100"></td>
+      <td>${{ price }}</td>
+      <td>
+        <img src="{{ image }}" width="100" height="100" 
+             style="object-fit: cover;" 
+             onerror="this.onerror=null; this.src='/images/{{ image }}'">
+      </td>
       <td>{{ category.name }}</td>
+      {{#if (eq ../role "admin")}}
       <td>
         <a class="btn orange" href="/product/edit/{{ _id }}">EDIT</a>
         <a class="btn red darken-1" href="/product/delete/{{ _id }}" 
            onclick="return confirm('Do you want to delete this product ?');">DELETE</a>
       </td>
+      {{/if}}
     </tr>
     {{/each}}
   </tbody>

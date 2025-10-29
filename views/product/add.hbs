@@ -1,10 +1,10 @@
 <h4 class="center-align bold">Add new product</h4>
 
-<form action="/product/add" method="post">
+<form action="/product/add" method="post" enctype="multipart/form-data">
   <div class="row">
     <div class="input-field col s12 m4 offset-m4">
       <label for="name">Product name</label>
-      <input class="validate" type="text" name="name" value="{{ product.name }}">
+      <input class="validate" type="text" name="name" value="{{ product.name }}" required>
       {{#if InputErrors.name}}
       <div class="error" style="color: red;">{{ InputErrors.name }}</div>
       {{/if}}
@@ -14,7 +14,7 @@
   <div class="row">
     <div class="input-field col s12 m4 offset-m4">
       <label for="price">Product price</label>
-      <input class="validate" type="number" name="price" value="{{ product.price }}">
+      <input class="validate" type="number" name="price" value="{{ product.price }}" required>
       {{#if InputErrors.price}}
       <div class="error" style="color: red;">{{ InputErrors.price }}</div>
       {{/if}}
@@ -23,14 +23,17 @@
   
   <div class="row">
     <div class="input-field col s12 m4 offset-m4">
-      <label for="image">Product image URL</label>
-      <input class="validate" type="text" name="image" value="{{ product.image }}">
+      <p><strong>Choose one:</strong></p>
+      <p>Upload Image File: <input type="file" name="image" id="imageFile"></p>
+      <p>OR</p>
+      <label for="imageUrl">Image URL</label>
+      <input type="text" name="image" id="imageUrl" placeholder="https://example.com/image.jpg">
     </div>
   </div>
   
   <div class="row">
     <div class="input-field col s12 m4 offset-m4">
-      <select name="category">
+      <select name="category" required>
         <option value="" disabled selected>Choose category</option>
         {{#each categoryList}}
         <option value="{{ _id }}">{{ name }}</option>
@@ -46,3 +49,24 @@
     </div>
   </div>
 </form>
+
+<script>
+  // Disable URL input when file is selected
+  document.getElementById('imageFile').addEventListener('change', function() {
+    if (this.files.length > 0) {
+      document.getElementById('imageUrl').disabled = true;
+      document.getElementById('imageUrl').value = '';
+    } else {
+      document.getElementById('imageUrl').disabled = false;
+    }
+  });
+  
+  // Disable file input when URL is entered
+  document.getElementById('imageUrl').addEventListener('input', function() {
+    if (this.value) {
+      document.getElementById('imageFile').disabled = true;
+    } else {
+      document.getElementById('imageFile').disabled = false;
+    }
+  });
+</script>

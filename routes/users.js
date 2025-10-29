@@ -6,8 +6,4 @@ router.get('/', function(req, res, next) {
   res.send('respond with a resource');
 });
 
-router.get('/', function(req, res) {
-  res.render('index', { layout: 'home_layout' });
-});
-
 module.exports = router;

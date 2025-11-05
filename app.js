@@ -6,6 +6,7 @@ var logger = require('morgan');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var session = require('express-session');
+var cors = require('cors'); // Thêm dòng này
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -18,6 +19,9 @@ var app = express();
 var database = "mongodb://localhost:27017/web"
 
 const { log } = require('console');
+
+// Enable CORS for all origins (Usage 1 - simplest approach)
+app.use(cors());
 
 // MongoDB connection
 mongoose.connect(database)
